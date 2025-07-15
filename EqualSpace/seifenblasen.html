@@ -237,7 +237,7 @@
   <div id="blasen-container"></div>
   <div id="press">
 
-    <img src="Bilder/infoseifen.png" alt="Press" />
+    <img src="bilder/infoseifen.png" alt="Press" />
   </div>
 <div id="pop-text"></div>
   <script>
@@ -385,7 +385,7 @@ document.addEventListener("click", (e) => {
     // Zufallszahl 1–5 für Bildauswahl und zugehörigen Text
     const index = Math.floor(Math.random() * 5) + 1;
 
-    blase.src = `Bilder/seifenblase${index}.png`;
+    blase.src = `bilder/seifenblase${index}.png`;
     blase.alt = `Seifenblase ${index}`;
     blase.classList.add('seifenblase');
     blase.dataset.text = seifenblasenTexte[index] || 'Kein Text vorhanden.';
