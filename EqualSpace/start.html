@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+    <style>
+        /*background-color: rgb(159, 93, 248);*/
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+            background-color: white;
+            font-family: sans-serif;
+        }
+        @font-face {
+      font-family: 'coc';
+      src: url('font/true.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+     h1 {
+      font-family: 'coc';
+      margin: 1.25vh 0 1.875vh 0;
+      font-size: 6rem;
+      text-align: center;
+      user-select: none;
+      color: black;
+      position: fixed;
+      top: 0.1vh;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      z-index: 0;
+    }
+        .bubble-unten {
+    position: absolute;
+    left: 50%;
+    bottom: -12vh;
+    transform: translateX(-50%);
+    height: 82vh; /* oder eine andere passende Größe */
+    z-index: 15;  /* damit es über den Strichen, aber unter dem Textfeld liegt */
+    pointer-events: none; /* optional, falls das Bild keine Klicks abfangen soll */
+}
+
+
+        .strich-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        .strich-container img.strich1,
+        .strich-container img.strich2 {
+            position: absolute;
+            left: 0;
+            width: 100vw;
+            height: 50vh;
+            z-index: 1;
+        }
+
+        .strich-container img.strich1 {
+            top: -8vh;
+        }
+
+        .strich-container img.strich2 {
+            top: 12vh; /* etwas Überlappung, ggf. anpassen */
+        }
+
+        .blasen-container {
+            position: absolute;
+            top: 14vh; /* Zwischen den Strichen */
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            gap: 5.5vw;
+            z-index: 10;
+        }
+
+        .blasen-container button {
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+        }
+
+        .blasen-container img {
+            height: 19vh;
+        }
+
+        .textfeld {
+    position: absolute;
+    top: 40vh;
+    width: 40vw;
+    left: 30%;
+    font-size: 2.2rem;
+    font-family: 'coc';
+    color:black;
+    padding: 1vh;
+    display: block; /* <-- Sichtbar von Anfang an */
+    z-index: 20;
+}
+#hilfeButton {
+  position: absolute;
+  top: 2vh;
+  left: 2vw;
+  z-index: 100;
+  padding: 0.5em 1em;
+  font-size: 1.2em;
+  cursor: pointer;
+  transition: filter 0.2s ease;
+
+  height: auto;
+}
+
+#hilfeButton:hover {
+  filter: brightness(0.85);
+}
+
+/* Hilfe Overlay */
+#hilfeOverlay {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  text-align: center;
+}
+
+/* Hilfe GIF */
+#hilfeGif {
+  width: 80vw;
+  height: auto;
+  pointer-events: none;
+}
+
+
+
+
+#hilfeContainer {
+  position: fixed;
+  top: 50%;
+  left: 40%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  display: none;
+  pointer-events: none;
+}
+    </style>
+</head>
+<body>
+    <h1>EqualSpace</h1>
+    <img id="infotext" src="bilder/infoprojekt.png" alt="Hilfe" style="
+  position: absolute;
+  top: 42.6vh;
+  left: 6.3vw;
+  z-index: 999;
+  width: 14.2vw;
+  height: auto;
+  cursor: pointer;
+">
+    <img id="hilfeButton" src="bilder/frage.png" alt="Hilfe" style="
+  position: absolute;
+  top: 60.6vh;
+  left: 7.3vw;
+  z-index: 999;
+  width: 10.2vw;
+  height: auto;
+  cursor: pointer;
+">
+<!-- Hilfe-Container -->
+<div id="hilfeContainer" style="position:fixed; top:50%; left:40%; transform:translate(-50%, -50%);
+     z-index:9999; display:none; pointer-events:none;">
+
+  <img id="hilfeGif" src="video/hilfe.gif">
+  <!-- Wird durch PNG ersetzt -->
+</div>
+    <div class="strich-container">
+        <img src="bilder/strich1.png" alt="Strich 1" class="strich1">
+        <img src="bilder/strich2.png" alt="Strich 2" class="strich2">
+
+        <!-- Blasen-Buttons -->
+        <div class="blasen-container">
+            <button onclick="zeigeText('Diskriminierung aufgrund der sexuellen Identität betrifft Menschen, die lesbisch, schwul, bisexuell, trans*, inter* oder queer sind und deshalb Benachteiligung oder Ausgrenzung erfahren.','waschmaschine.html')"><img src="bilder/blase1.png" alt="Blase 1"></button>
+            <button onclick="zeigeText('Diskriminierung aufgrund einer Behinderung bedeutet, dass Menschen mit körperlichen, geistigen oder seelischen Beeinträchtigungen in vielen Lebensbereichen benachteiligt werden, z.B. beim Zugang zu Gebäuden, Bildung oder Arbeit.', 'fliege.html')"><img src="bilder/blase2.png" alt="Blase 2"></button>
+            <button onclick="zeigeText('Menschen werden wegen ihrer religiösen Zugehörigkeit, religiöser Kleidung oder Weltanschauung benachteiligt oder ausgeschlossen, etwa am Arbeitsplatz, in der Schule oder im öffentlichen Raum.', 'Schloss.html')"><img src="bilder/blase3.png" alt="Blase 3"></button>
+            <button onclick="zeigeText('Diskriminierung aufgrund des Geschlechts oder der Geschlechtsidentität tritt auf, wenn Menschen wegen ihres (zugeschriebenen) Geschlechts benachteiligt werden, z.B. Frauen bei der Jobsuche oder trans* Personen im Alltag.', 'Wasser.html')"><img src="bilder/blase4.png" alt="Blase 4"></button>
+            <button onclick="zeigeText('Diskriminierung wegen des Alters zeigt sich oft darin, dass Menschen,ob jung oder alt, als weniger leistungsfähig oder weniger geeignet angesehen werden, etwa bei Bewerbungen oder in der Werbung.', 'puzzle.html')"><img src="bilder/blase5.png" alt="Blase 5"></button>
+            <button onclick="zeigeText('Diskriminierung aufgrund ethnischer Herkunft oder rassistischer Zuschreibungen bedeutet, dass Menschen wegen ihrer Hautfarbe, Sprache, Herkunft oder vermeintlichen Zugehörigkeit zu einer bestimmten Gruppe benachteiligt oder ausgegrenzt werden.', 'seifenblasen.html')"><img src="bilder/blase6.png" alt="Blase 6"></button>
+        </div>
+ <img src="bilder/bubble.png" alt="Bubble" class="bubble-unten">
+        <!-- Textfeld unten -->
+        <div id="textfeld" class="textfeld">Content Warning: <br>
+            Die folgende interaktive Webseite enthältt sensible Inhalte, die insbesondere für Personen, die Diskriminierung erfahren haben, belastend oder schwierig sein können.<br>
+Bitte achte auf dich selbst, wenn du dich mit diesen Themen beschäftigst, dein Wohlbefinden ist wichtig.<br>
+Folgende Themen werden behandelt: Diskriminierung gegen ethnische Herkunft und Hautfarbe, Behinderung, Geschlecht und Geschlechtsidentität, Alter, Religion und Sexuelle Identität.</div>
+
+    </div>
+    <!-- Weiter-Button unten -->
+<a id="weiterLink" href="#" style="display: none;">
+    <img id="weiterButton" src="bilder/button.png" alt="Weiter" style="
+        position: absolute;
+        bottom: 8vh;
+        left: 50%;
+        transform: translateX(-50%);
+        height: 28vh;
+        z-index: 20;
+        cursor: pointer;">
+</a>
+
+<div style="position: relative;">
+    <img src="video/wirvideo.gif" alt="Wir-Video" style="
+        position: absolute;
+        bottom: 1vh;
+        right: 2vw;
+        width: 22vw;
+        height: auto;
+        z-index: 0;
+    ">
+    <div style="
+        position: absolute;
+        bottom: 1vh; /* etwas unter dem Bild */
+        right: 4vw;
+        font-family: 'coc';
+        font-size: 2vw;
+        z-index: 1;
+        color: black;
+    ">
+        Von Carla Nouroozi & Niklas Reinig
+    </div>
+</div>
+   <script>
+        const hilfeBtn = document.getElementById("hilfeButton");
+const hilfeContainer = document.getElementById("hilfeContainer");
+const hilfeGif = document.getElementById("hilfeGif");
+
+let hilfeOffen = false; // Zustand: ist das Hilfe-Overlay sichtbar?
+let sperreAktiv = false; // Damit wir nach dem Schließen kurz blockieren
+
+hilfeBtn.addEventListener("click", () => {
+  if (hilfeOffen) {
+    // Schon offen → schließen wie beim normalen Click woanders
+    if (sperreAktiv) return; // falls mehrfach geklickt wird
+
+    sperreAktiv = true;
+    hilfeGif.src = "video/falten.gif?" + Date.now();
+
+    const existingText = hilfeContainer.querySelector("div");
+    if (existingText) existingText.style.display = "none";
+
+    setTimeout(() => {
+      hilfeContainer.style.display = "none";
+      hilfeGif.src = "";
+      if (existingText) existingText.remove();
+
+      hilfeOffen = false;
+      sperreAktiv = false;
+    }, 880);
+
+    return;
+  }
+
+  if (sperreAktiv) return; // blockiere sofortiges Neuöffnen
+
+  // Hilfe öffnen
+  hilfeOffen = true;
+  hilfeContainer.style.display = "block";
+  hilfeGif.src = "video/hilfe.gif?t=" + Date.now();
+
+  // Nach 0.92 Sekunden ersetzen durch PNG (das letzte Frame)
+  setTimeout(() => {
+    hilfeGif.src = "bilder/hilfe.png"; // ersetzt das gif
+    // Optional: Textfeld einblenden
+    const text = document.createElement("div");
+    text.textContent = " Im Rahmen des Moduls Collaboration & Innovation haben wir uns mit sozial-innovativen Formen der Zusammenarbeit beschäftigt. Sozial-innovative Kollaboration zeichnet sich durch gelebte Partizipation, transparente Prozesse, gemeinsame Entscheidungsfindung und das Streben nach gesellschaftlichem Wandel aus. Ausgangspunkt waren Projekte wie „Cucula“, „Premium Cola“, „DisCo Coop“ und „KARUNA“, aus denen wir diese Prinzipien abgeleitet haben. Über gemeinsame Reflexionen und Ideen-Schleifen entstand unser Projektthema: Gleichstellung versus Gleichberechtigung. Daraus entwickelten wir ein interaktives Format, das Besuchenden das Thema Diskriminierung am Arbeitsplatz spielerisch näherbringt mit dem Ziel, bestehende Ungleichheiten sichtbar zu machen und Wege für mehr Gerechtigkeit aufzuzeigen. Die behandelten Diskriminierungsmerkmale sind durch eine Studie der Antidiskriminierungsstelle des Bundes [Diskriminierungsmerkmale Deutschland 2024| Statista] ausgewählt. Es ist jedoch wichtig hinzuweisen, dass deutlich mehr Diskriminierungsmerkmale existieren.";
+ text.style.position = "absolute";
+text.style.top = "50%";
+text.style.left = "63%";
+text.style.transform = "translate(-50%, -50%)";
+//text.style.display = "inline-block"; // oder "block"
+
+text.style.width = "45vw";
+text.style.padding = "10px 20px";
+text.style.fontSize = "2vw";
+
+text.style.fontFamily = 'coc';
+text.style.color = "black";
+text.style.zIndex = "10000";
+
+
+
+
+    hilfeContainer.appendChild(text);
+  }, 880); // 11 Frames @ 12 fps ≈ 920ms
+});
+document.addEventListener("click", (e) => {
+  const isHilfeButton = e.target.id === "hilfeButton" || e.target.closest("#hilfeButton");
+  const isHilfeOverlay = e.target.closest("#hilfeContainer");
+
+  if (!isHilfeButton && !isHilfeOverlay && hilfeOffen && !sperreAktiv) {
+    sperreAktiv = true;
+    hilfeGif.src = "video/falten.gif?" + Date.now();
+    const existingText = hilfeContainer.querySelector("div");
+    if (existingText) existingText.style.display = "none";
+
+    setTimeout(() => {
+      hilfeContainer.style.display = "none";
+      hilfeGif.src = "";
+      if (existingText) existingText.remove();
+      hilfeOffen = false;
+      sperreAktiv = false;
+    }, 880);
+  }
+});
+    function zeigeText(text, zielseite) {
+        const feld = document.getElementById('textfeld');
+        feld.textContent = text;
+        feld.style.display = 'block';
+
+        const weiterLink = document.getElementById('weiterLink');
+        weiterLink.href = zielseite;
+        weiterLink.style.display = 'block';
+    }
+</script>
+
+</body>
+</html>

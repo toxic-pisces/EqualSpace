@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Fliegenklatsche</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: white;
+      font-family: Arial, sans-serif;
+    }
+    @font-face {
+      font-family: 'FFCommaTrial';
+      src: url('font/true.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+    h1 {
+      font-family: 'FFCommaTrial';
+      margin: 1.25vh 0 1.875vh 0;
+      font-size: 6rem;
+      text-align: center;
+      user-select: none;
+      color: rgba(159, 98, 248, 1);
+      position: fixed;
+      top: 3.1vh;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      z-index: 0;
+    }
+    #game {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .fliege {
+      position: absolute;
+      width: 90px;
+      height: 90px;
+      pointer-events: none;
+    }
+
+    .fliegen-text {
+      position: absolute;
+      top: -30px;
+      left: -16vw;
+      width: max-content;
+      font-size: 2rem;
+      font-family: 'FFCommaTrial';
+      color: black;
+      font-weight: bold;
+    }
+
+    .fliegenklatsche {
+      position: absolute;
+      width: 150px;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      cursor: grab;
+      transition: none;
+      touch-action: none;
+      z-index: 10;
+    }
+
+    .text-nach-schlag {
+      position: absolute;
+    
+      font-family: 'FFCommaTrial';
+      font-weight: bold;
+      font-size: 1.5rem;
+      right: 2vw;
+      width: 20vw;
+      text-align: left;
+    }
+
+    .dead-image {
+      position: absolute;
+      width: 160px;
+      height: 160px;
+      z-index: 1;
+    }
+        /* Hilfe-Button */
+#hilfeButton {
+  position: absolute;
+  top: 2vh;
+  left: 2vw;
+  z-index: 10000;
+  padding: 0.5em 1em;
+  font-size: 1.2em;
+  cursor: pointer;
+  transition: filter 0.2s ease;
+  height: auto;
+}
+
+#hilfeButton:hover {
+  filter: brightness(0.85);
+}
+
+/* Hilfe Overlay */
+#hilfeOverlay {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  text-align: center;
+}
+
+/* Hilfe GIF */
+#hilfeGif {
+  width: 80vw;
+  height: auto;
+  pointer-events: none;
+}
+
+
+
+
+#hilfeContainer {
+  position: fixed;
+  top: 50%;
+  left: 40%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  display: none;
+  pointer-events: none;
+}
+#home-button {
+  position: absolute;
+  top: 2vh;
+  right: 2vw;
+  z-index: 100;
+  padding: 0.5em 1em;
+  font-size: 1.2em;
+  cursor: pointer;
+  transition: filter 0.2s ease;
+  height: auto;
+}
+
+#home-button:hover {
+  filter: brightness(0.85);
+}
+  </style>
+</head>
+<body>
+  <h1>Thema: Behinderung</h1>
+      <img id="hilfeButton" src="bilder/frage.png" alt="Hilfe" style="
+  position: absolute;
+  top: 2.6vh;
+  left: 1.3vw;
+  z-index: 999;
+  width: 8.2vw;
+  height: auto;
+  cursor: pointer;
+">
+    <img id="home-button" src="bilder/home.png" alt="home" style="
+  position: absolute;
+  top: 2.6vh;
+  right: 1.3vw;
+  z-index: 999;
+  width: 8.2vw;
+  height: auto;
+  cursor: pointer;
+">
+<!-- Hilfe-Container -->
+<div id="hilfeContainer" style="position:fixed; top:50%; left:40%; transform:translate(-50%, -50%);
+     z-index:9999; display:none; pointer-events:none;">
+
+  <img id="hilfeGif" src="video/hilfe.gif">
+  <!-- Wird durch PNG ersetzt -->
+</div>
+  <div id="game">
+    <img src="video/klatschee.gif" class="fliegenklatsche" id="klatsche">
+  </div>
+
+  <script>
+    let geschlageneFliegen = 0;
+let alleFliegenGeschlagen = false;
+
+    const hilfeBtn = document.getElementById("hilfeButton");
+const hilfeContainer = document.getElementById("hilfeContainer");
+const hilfeGif = document.getElementById("hilfeGif");
+
+let hilfeOffen = false; // Zustand: ist das Hilfe-Overlay sichtbar?
+let sperreAktiv = false; // Damit wir nach dem Schließen kurz blockieren
+
+hilfeBtn.addEventListener("click", () => {
+  if (hilfeOffen) {
+    // Schon offen → schließen wie beim normalen Click woanders
+    if (sperreAktiv) return; // falls mehrfach geklickt wird
+
+    sperreAktiv = true;
+    hilfeGif.src = "video/falten.gif?" + Date.now();
+
+    const existingText = hilfeContainer.querySelector("div");
+    if (existingText) existingText.style.display = "none";
+
+    setTimeout(() => {
+      hilfeContainer.style.display = "none";
+      hilfeGif.src = "";
+      if (existingText) existingText.remove();
+
+      hilfeOffen = false;
+      sperreAktiv = false;
+    }, 880);
+
+    return;
+  }
+
+  if (sperreAktiv) return; // blockiere sofortiges Neuöffnen
+
+  // Hilfe öffnen
+  hilfeOffen = true;
+  hilfeContainer.style.display = "block";
+  hilfeGif.src = "video/hilfe.gif?t=" + Date.now();
+
+  // Nach 0.92 Sekunden ersetzen durch PNG (das letzte Frame)
+  setTimeout(() => {
+    hilfeGif.src = "bilder/hilfe.png"; // ersetzt das gif
+    // Optional: Textfeld einblenden
+    const text = document.createElement("div");
+    text.textContent = "Nimm die Fliegenklatsche und schlage die Fliegen. Jede Fliege stellt ein Problem dar, wie diesem entgegengewirkt werden kann, erscheint rechts im Bildschirm.";
+ text.style.position = "absolute";
+text.style.top = "50%";
+text.style.left = "63%";
+text.style.transform = "translate(-50%, -50%)";
+//text.style.display = "inline-block"; // oder "block"
+
+text.style.width = "45vw";
+text.style.padding = "10px 20px";
+text.style.fontSize = "3vw";
+
+text.style.fontFamily = 'FFCommaTrial';
+text.style.color = "black";
+text.style.zIndex = "10000";
+
+
+
+
+    hilfeContainer.appendChild(text);
+  }, 880); // 11 Frames @ 12 fps ≈ 920ms
+});
+document.addEventListener("click", (e) => {
+  const isHilfeButton = e.target.id === "hilfeButton" || e.target.closest("#hilfeButton");
+  const isHilfeOverlay = e.target.closest("#hilfeContainer");
+
+  if (!isHilfeButton && !isHilfeOverlay && hilfeOffen && !sperreAktiv) {
+    sperreAktiv = true;
+    hilfeGif.src = "video/falten.gif?" + Date.now();
+    const existingText = hilfeContainer.querySelector("div");
+    if (existingText) existingText.style.display = "none";
+
+    setTimeout(() => {
+      hilfeContainer.style.display = "none";
+      hilfeGif.src = "";
+      if (existingText) existingText.remove();
+      hilfeOffen = false;
+      sperreAktiv = false;
+    }, 880);
+  }
+});
+    const game = document.getElementById('game');
+    const klatsche = document.getElementById('klatsche');
+
+    const fliegen = [
+      {
+        id: 1,
+        text: 'Vorurteile, Unwissenheit und Berührungsängste',
+        deadText: 'Sensibilisierung der Belegschaft: Regelmäßige Schulungen zur Inklusion und Abbau von Vorurteilen gegenüber Menschen mit Behinderung fördern Empathie und Wissen, reduzieren Diskriminierungserfahrungen und verbessern das soziale Klima im Team.',
+        deadTextTop: '25vh'
+      },
+      {
+        id: 2,
+        text: 'Fehlende Unterstützung und Anpassung des Arbeitsplatzes',
+        deadText: 'Individuelle Anpassungen: Bereitstellung technischer Hilfsmittel und Anpassung von Aufgabenbereichen entsprechend den Bedürfnissen von Mitarbeitenden mit Behinderung führen zu einer nachhaltigen Leistungssteigerung und stärken das Verbleiben von Menschen mit Behinderung im Beruf.',
+        deadTextTop: '48vh'
+      },
+      {
+        id: 3,
+        text: 'Physische und digitale Zugangsbarrieren',
+        deadText: 'Barrierefreiheit: Die Sicherstellung, dass Arbeitsplätze, Zugänge und IT-Lösungen barrierefrei gestaltet sind, ermöglicht Menschen mit Behinderung die gleichberechtigte Teilhabe am Berufsleben und verringert Arbeitslosigkeit in dieser Gruppe.',
+        deadTextTop: '75vh'
+      }
+    ];
+
+    const deadZones = [
+  {
+    type: 'rect',
+    x: 0,
+    y: 0,
+    width: window.innerWidth,
+    height: window.innerHeight * 0.2  // Obere 20% des Bildschirms
+  },
+  {
+    type: 'rect',
+    x: window.innerWidth * 0.8,
+    y: 0,
+    width: window.innerWidth * 0.2,  // Rechte 20% des Bildschirms
+    height: window.innerHeight
+  }
+];
+
+function isInDeadZone(x, y) {
+  return deadZones.some(zone => {
+    return (
+      x >= zone.x &&
+      x <= zone.x + zone.width &&
+      y >= zone.y &&
+      y <= zone.y + zone.height
+    );
+  });
+}
+
+    function isOverDeadText(x, y) {
+      const texts = document.querySelectorAll('.dead-image');
+      return Array.from(texts).some(el => {
+        const rect = el.getBoundingClientRect();
+        return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+      });
+    }
+
+    function animateFliege(fliege) {
+      function move() {
+        if (!game.contains(fliege)) return;
+
+        let x, y, attempts = 0;
+        do {
+          x = Math.random() * (window.innerWidth - 300);
+          y = Math.random() * (window.innerHeight - 300);
+          attempts++;
+        } while ((isInDeadZone(x, y) || isOverDeadText(x, y)) && attempts < 50);
+
+        fliege.style.transition = 'top 2s linear, left 2s linear';
+        fliege.style.left = x + 'px';
+        fliege.style.top = y + 'px';
+        setTimeout(move, 2000);
+      }
+      move();
+    }
+
+    function createFliege(data) {
+      const wrapper = document.createElement('div');
+      wrapper.classList.add('fliege');
+      wrapper.style.left = Math.random() * (window.innerWidth - 60) + 'px';
+      wrapper.style.top = Math.random() * (window.innerHeight - 120) + 'px';
+      wrapper.dataset.id = data.id;
+
+      const text = document.createElement('div');
+      text.classList.add('fliegen-text');
+      text.innerText = data.text;
+
+      const img = document.createElement('img');
+      img.src = 'video/fliege.gif';
+      img.width = 120;
+
+      wrapper.appendChild(text);
+      wrapper.appendChild(img);
+      game.appendChild(wrapper);
+
+      animateFliege(wrapper);
+    }
+
+    fliegen.forEach(createFliege);
+
+    let isDragging = false;
+    let offsetX, offsetY;
+
+    klatsche.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      isDragging = true;
+      offsetX = e.clientX - klatsche.getBoundingClientRect().left;
+      offsetY = e.clientY - klatsche.getBoundingClientRect().top;
+      klatsche.setPointerCapture(e.pointerId);
+      klatsche.style.cursor = 'grabbing';
+    });
+
+    klatsche.addEventListener('pointerup', (e) => {
+      isDragging = false;
+      klatsche.releasePointerCapture(e.pointerId);
+      klatsche.style.cursor = 'grab';
+    });
+
+    klatsche.addEventListener('pointermove', (e) => {
+      if (!isDragging) return;
+      const x = e.clientX - offsetX;
+      const y = e.clientY - offsetY;
+      klatsche.style.left = `${x}px`;
+      klatsche.style.top = `${y}px`;
+      klatsche.style.bottom = 'auto';
+      klatsche.style.transform = 'none';
+      checkCollision();
+    });
+
+    function checkCollision() {
+      const klatscheRect = klatsche.getBoundingClientRect();
+      document.querySelectorAll('.fliege').forEach(fliege => {
+        const rect = fliege.getBoundingClientRect();
+        if (
+          klatscheRect.left < rect.right &&
+          klatscheRect.right > rect.left &&
+          klatscheRect.top < rect.bottom &&
+          klatscheRect.bottom > rect.top
+        ) {
+          schlagen(fliege);
+        }
+      });
+    }
+
+    function schlagen(fliege) {
+  const { left, top } = fliege.getBoundingClientRect();
+  const fliegenId = parseInt(fliege.dataset.id);
+  const fliegenData = fliegen.find(f => f.id === fliegenId);
+  game.removeChild(fliege);
+
+  geschlageneFliegen++;
+  if (geschlageneFliegen === fliegen.length) {
+    alleFliegenGeschlagen = true;
+  }
+
+  klatsche.src = 'video/klatsche.gif';
+  setTimeout(() => {
+    klatsche.src = 'video/klatschee.gif';
+  }, 500);
+
+  const image = document.createElement('img');
+  image.src = 'bilder/matsche.png';
+  image.className = 'dead-image';
+  image.style.left = left + 'px';
+  image.style.top = top + 'px';
+  game.appendChild(image);
+
+  const textDiv = document.createElement('div');
+  textDiv.className = 'text-nach-schlag';
+  textDiv.innerText = fliegenData.deadText;
+  textDiv.style.top = fliegenData.deadTextTop;
+  game.appendChild(textDiv);
+}
+    document.getElementById("home-button").addEventListener("click", () => {
+  if (alleFliegenGeschlagen) {
+    window.location.href = "victory2.html";
+  } else {
+    window.location.href = "start.html";
+  }
+});
+  </script>
+</body>
+</html>

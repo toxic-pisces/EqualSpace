@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Waschspiel</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
+    @font-face {
+      font-family: 'FFCommaTrial';
+      src: url('font/true.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+    h1 {
+      font-family: 'FFCommaTrial';
+      margin: 1.25vh 0 1.875vh 0;
+      font-size: 6rem;
+      text-align: center;
+      user-select: none;
+      color: rgba(159, 98, 248, 1);
+      position: fixed;
+      top: 3.1vh;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      z-index: 0;
+    }
+    #container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 100vh;
+      width: 100vw;
+      position: relative;
+    }
+    #korb {
+      width: 15vw;
+      margin-bottom: -12vw;
+      margin-left: 8vw;
+      cursor: pointer;
+    }
+    #counter {
+      position: absolute;
+      top: 70vh;
+      left: 14.5vw;
+      font-family: 'FFCommaTrial';
+      font-size: 2rem;
+      color: black;
+      
+      padding: 8px 16px;
+      border-radius: 10px;
+    }
+    #waschmaschine {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 300px;
+      height: 300px;
+    }
+    #waschmaschine video {
+      width: 100%;
+      height: 100%;
+    }
+    .dreckigItem {
+      position: absolute;
+      width: 100px;
+      cursor: grab;
+      user-select: none;
+      touch-action: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .textOverlay {
+      margin-top: -10px;
+      margin-bottom: 4px;
+      font-family: 'FFCommaTrial';
+      color: black;
+      font-size: 1.5rem;
+      padding: 2px 6px;
+      width: 15vw;
+    }
+    .sauberItem {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 250px;
+    }
+    .sauberItemText {
+      margin-top: 10px;
+      font-family: 'FFCommaTrial';
+      font-size: 1.3rem;
+      color: black;
+      text-align: center;
+      padding: 10px;
+      border-radius: 10px;
+      width: 30vw;
+    }
+    /* Hilfe-Button */
+#hilfeButton {
+  position: absolute;
+  top: 2vh;
+  left: 2vw;
+  z-index: 100;
+  padding: 0.5em 1em;
+  font-size: 1.2em;
+  cursor: pointer;
+  transition: filter 0.2s ease;
+
+  height: auto;
+}
+
+#hilfeButton:hover {
+  filter: brightness(0.85);
+}
+
+/* Hilfe Overlay */
+#hilfeOverlay {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  text-align: center;
+}
+
+/* Hilfe GIF */
+#hilfeGif {
+  width: 80vw;
+  height: auto;
+  pointer-events: none;
+}
+
+
+
+
+#hilfeContainer {
+  position: fixed;
+  top: 50%;
+  left: 40%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  display: none;
+  pointer-events: none;
+}
+    #home-button {
+  position: absolute;
+  top: 2vh;
+  right: 2vw;
+  z-index: 100;
+  padding: 0.5em 1em;
+  font-size: 1.2em;
+  cursor: pointer;
+  transition: filter 0.2s ease;
+  height: auto;
+}
+
+#home-button:hover {
+  filter: brightness(0.85);
+}
+  </style>
+</head>
+<body>
+  <h1>Thema: Sexuelle Identität</h1>
+       <!-- Button -->
+<img id="hilfeButton" src="bilder/frage.png" alt="Hilfe" style="
+  position: absolute;
+  top: 2.6vh;
+  left: 1.3vw;
+  z-index: 999;
+  width: 8.2vw;
+  height: auto;
+  cursor: pointer;
+">
+<img id="home-button" src="bilder/home.png" alt="home" style="
+  position: absolute;
+  top: 2.6vh;
+  right: 1.3vw;
+  z-index: 999;
+  width: 8.2vw;
+  height: auto;
+  cursor: pointer;
+">
+<!-- Hilfe-Container -->
+<div id="hilfeContainer" style="position:fixed; top:50%; left:40%; transform:translate(-50%, -50%);
+     z-index:9999; display:none; pointer-events:none;">
+
+  <img id="hilfeGif" src="video/hilfe.gif">
+  <!-- Wird durch PNG ersetzt -->
+</div>
+  <div id="container">
+    <img id="korb" src="bilder/korb.png" alt="Korb">
+    <div id="counter">3/3</div>
+    <div id="waschmaschine">
+      <video id="wmVideo" src="video/waschmaschine.mp4" preload="auto"></video>
+    </div>
+  </div>
+<script>
+        const hilfeBtn = document.getElementById("hilfeButton");
+const hilfeContainer = document.getElementById("hilfeContainer");
+const hilfeGif = document.getElementById("hilfeGif");
+
+let hilfeOffen = false; // Zustand: ist das Hilfe-Overlay sichtbar?
+let sperreAktiv = false; // Damit wir nach dem Schließen kurz blockieren
+
+hilfeBtn.addEventListener("click", () => {
+  if (hilfeOffen) {
+    // Schon offen → schließen wie beim normalen Click woanders
+    if (sperreAktiv) return; // falls mehrfach geklickt wird
+
+    sperreAktiv = true;
+    hilfeGif.src = "video/falten.gif?" + Date.now();
+
+    const existingText = hilfeContainer.querySelector("div");
+    if (existingText) existingText.style.display = "none";
+
+    setTimeout(() => {
+      hilfeContainer.style.display = "none";
+      hilfeGif.src = "";
+      if (existingText) existingText.remove();
+
+      hilfeOffen = false;
+      sperreAktiv = false;
+    }, 880);
+
+    return;
+  }
+
+  if (sperreAktiv) return; // blockiere sofortiges Neuöffnen
+
+  // Hilfe öffnen
+  hilfeOffen = true;
+  hilfeContainer.style.display = "block";
+  hilfeGif.src = "video/hilfe.gif?t=" + Date.now();
+
+  // Nach 0.92 Sekunden ersetzen durch PNG (das letzte Frame)
+  setTimeout(() => {
+    hilfeGif.src = "bilder/hilfe.png"; // ersetzt das gif
+    // Optional: Textfeld einblenden
+    const text = document.createElement("div");
+    text.textContent = "Drücke auf den Schmutzwäschekorb, um dreckige Problem Wäsche zu sammeln und in die Waschmaschine zu werfen. Nach dem Waschvorgang erscheinen Möglichkeiten, diesen Problemen entgegenzuwirken.";
+ text.style.position = "absolute";
+text.style.top = "50%";
+text.style.left = "63%";
+text.style.transform = "translate(-50%, -50%)";
+//text.style.display = "inline-block"; // oder "block"
+
+text.style.width = "45vw";
+text.style.padding = "10px 20px";
+text.style.fontSize = "3vw";
+
+text.style.fontFamily = 'FFCommaTrial';
+text.style.color = "black";
+text.style.zIndex = "10000";
+
+
+
+
+    hilfeContainer.appendChild(text);
+  }, 880); // 11 Frames @ 12 fps ≈ 920ms
+});
+document.addEventListener("click", (e) => {
+  const isHilfeButton = e.target.id === "hilfeButton" || e.target.closest("#hilfeButton");
+  const isHilfeOverlay = e.target.closest("#hilfeContainer");
+
+  if (!isHilfeButton && !isHilfeOverlay && hilfeOffen && !sperreAktiv) {
+    sperreAktiv = true;
+    hilfeGif.src = "video/falten.gif?" + Date.now();
+    const existingText = hilfeContainer.querySelector("div");
+    if (existingText) existingText.style.display = "none";
+
+    setTimeout(() => {
+      hilfeContainer.style.display = "none";
+      hilfeGif.src = "";
+      if (existingText) existingText.remove();
+      hilfeOffen = false;
+      sperreAktiv = false;
+    }, 880);
+  }
+});
+
+  const texteDreckig = [
+    "Vorurteile, Unwissenheit und Diskriminierung",
+    "Fehlende Vertrauenspersonen und Unterstützung",
+    "Unsichtbarkeit und fehlende Akzeptanz sexueller Vielfalt"
+  ];
+  const texteSauber = [
+    "Diversity- und Awareness-Trainings: Regelmäßige Schulungen zu sexueller Vielfalt und Antidiskriminierung für alle Mitarbeitenden führen zu größerer Sicherheit am Arbeitsplatz für queere Personen und reduzieren feindselige oder ausgrenzende Äußerungen.",
+    "LSBTIQ-Ansprechpersonen: Benennung von Vertrauenspersonen für LSBTIQ*-Anliegen und Unterstützung bei Diskriminierungserfahrungen geben sichere Räume für queere Mitarbeitende und ermöglichen eine schnelle, niederschwellige Reaktion auf Diskriminierung.",
+    "Sichtbare Zeichen der Unterstützung: Teilnahme an Diversity-Aktionen (z. B. durch Charta der Vielfalt e.V., Besuch von CSD’s o.Ä. ), Regenbogenflaggen oder inklusive Sprache in der Unternehmenskommunikation zeigt klare Haltung und stärkt das Vertrauen queerer Mitarbeitender, offen und authentisch sein zu können."
+  ];
+  let index = 0;
+  let waschCounter = 0;
+  let gameComplete = false;
+
+  const korb = document.getElementById('korb');
+  const wm = document.getElementById('waschmaschine');
+  const wmVideo = document.getElementById('wmVideo');
+  const counterDisplay = document.getElementById('counter');
+
+  const targetPositions = [
+    { top: '10%', left: '70%' },
+    { top: '40%', left: '75%' },
+    { top: '70%', left: '65%' }
+  ];
+
+  korb.addEventListener('click', () => {
+    if (index >= texteDreckig.length) return;
+
+    const wrapper = document.createElement('div');
+    wrapper.className = "dreckigItem";
+    wrapper.style.left = `${70 + index * 150}px`;
+    wrapper.style.top = "200px";
+
+    const text = document.createElement('div');
+    text.className = "textOverlay";
+    text.innerText = texteDreckig[index];
+
+    const img = document.createElement('img');
+    img.src = "video/dreckig.gif";
+    img.style.width = "100px";
+
+    wrapper.appendChild(text);
+    wrapper.appendChild(img);
+    document.body.appendChild(wrapper);
+
+    makeDraggable(wrapper, index);
+    index++;
+
+    updateCounter();
+  });
+
+  function updateCounter() {
+    const remaining = texteDreckig.length - index;
+    counterDisplay.textContent = `${remaining}/3`;
+  }
+
+  function makeDraggable(el, itemIndex) {
+    let isDragging = false;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    const onPointerDown = (e) => {
+      e.preventDefault();
+      isDragging = true;
+      el.setPointerCapture(e.pointerId);
+      offsetX = e.clientX - el.offsetLeft;
+      offsetY = e.clientY - el.offsetTop;
+      el.style.zIndex = 10000;
+      el.style.cursor = 'grabbing';
+    };
+
+    const onPointerMove = (e) => {
+      if (!isDragging) return;
+      el.style.left = `${e.clientX - offsetX}px`;
+      el.style.top = `${e.clientY - offsetY}px`;
+    };
+
+    const onPointerUp = (e) => {
+      if (!isDragging) return;
+      isDragging = false;
+      el.releasePointerCapture(e.pointerId);
+      el.style.cursor = 'grab';
+
+      const wmRect = wm.getBoundingClientRect();
+      const elRect = el.getBoundingClientRect();
+
+      const inDropArea = elRect.left < wmRect.right &&
+                         elRect.right > wmRect.left &&
+                         elRect.top < wmRect.bottom &&
+                         elRect.bottom > wmRect.top;
+
+      if (inDropArea) {
+        el.remove();
+        startWaschvorgang(itemIndex);
+      }
+    };
+
+    el.addEventListener('pointerdown', onPointerDown);
+    el.addEventListener('pointermove', onPointerMove);
+    el.addEventListener('pointerup', onPointerUp);
+  }
+
+  function startWaschvorgang(i) {
+    wmVideo.currentTime = 0;
+    wmVideo.loop = true;
+    wmVideo.play();
+
+    setTimeout(() => {
+      wmVideo.pause();
+      wmVideo.loop = false;
+      showSauber(i);
+    }, 5000);
+  }
+
+  function showSauber(i) {
+    const sauberDiv = document.createElement('div');
+    sauberDiv.className = "sauberItem";
+    sauberDiv.style.top = targetPositions[i].top;
+    sauberDiv.style.left = targetPositions[i].left;
+
+    const gif = document.createElement('img');
+    gif.src = "video/sauber.gif";
+    gif.style.width = "100px";
+
+    const text = document.createElement('div');
+    text.className = "sauberItemText";
+    text.innerText = texteSauber[i];
+
+    sauberDiv.appendChild(gif);
+    sauberDiv.appendChild(text);
+    document.body.appendChild(sauberDiv);
+
+    waschCounter++;
+    if (waschCounter === 3) {
+      gameComplete = true;
+      
+    }
+  }
+  document.getElementById("home-button").addEventListener("click", () => {
+  if (gameComplete) {
+    window.location.href = "victory.html";
+  } else {
+    window.location.href = "start.html";
+  }
+});
+</script>
+</body>
+</html>

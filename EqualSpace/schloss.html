@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>Türen</title>
+  <style>
+     @font-face {
+  font-family: 'FFCommaTrial';
+  src: url('font/true.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+    body {
+      margin: 0;
+      padding: 0;
+      background: white;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+h1 {
+    font-family: 'FFCommaTrial';
+    margin: 1.25vh 0 1.875vh 0;
+    font-size: 6rem;
+    text-align: center;
+    user-select: none;
+    color: rgba(159, 98, 248, 1);
+    position: fixed;
+    top: 25.1vh;
+    left: 10%;
+    transform: translateX(-50%);
+    width: 20vw;
+    z-index: 0;
+  }
+    .tueren-container {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-top: 40px;
+      position: relative;
+    }
+
+    .tuer {
+      position: relative;
+      width: 200px;
+      height: 300px;
+    }
+
+    .tuer-still,
+    .tuer-video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .tuer-video {
+      display: none;
+    }
+
+    .schloss {
+      position: absolute;
+      top: 4vh;
+      left: 42%;
+      transform: translateX(-50%);
+      width: 14vw;
+      height: auto;
+      pointer-events: none;
+    }
+
+    .schluessel-container {
+      position: relative;
+      height: 200px;
+      margin-top: auto;
+      margin-bottom: 20px;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      left: -50%;
+    }
+
+    .schluessel-wrapper {
+      position: relative;
+    }
+
+    .schluessel {
+      width: 7vw;
+      cursor: grab;
+      z-index: 100;
+      transition: top 0.3s, left 0.3s;
+      position: absolute;
+    }
+
+    /* Global Tooltip Styles */
+    .tooltip-global {
+      position: fixed;
+      top: 55%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      
+      color: black;
+      padding: 10px 20px;
+      
+      font-size: 3rem;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      z-index: 9999;
+      font-family: 'FFCommaTrial';
+    }
+    .tuer-text {
+  position: absolute;
+  top: 50%;
+  left: 44%;
+  transform: translate(-50%, -50%);
+  
+  color: black;
+  padding: 15px 20px;
+  border-radius: 10px;
+  font-size: 2rem;
+  display: none;
+  z-index: 50;
+  width: 8vw;
+  text-align: center;
+  font-family: 'FFCommaTrial';
+}
+.tuer-text[data-id="1"] {
+  font-size: 1.2rem; /* oder jede andere gewünschte Größe */
+}
+.tuer-text[data-id="3"] {
+  font-size: 1.3rem; /* oder jede andere gewünschte Größe */
+}
+.tuer-text[data-id="2"] {
+  font-size: 1.3rem; /* oder jede andere gewünschte Größe */
+}
+    /* Hilfe-Button */
+#hilfeButton {
+  position: absolute;
+  top: 2vh;
+  left: 2vw;
+  z-index: 10000;
+  padding: 0.5em 1em;
+  font-size: 1.2em;
+  cursor: pointer;
+  transition: filter 0.2s ease;
+  height: auto;
+}
+
+#hilfeButton:hover {
+  filter: brightness(0.85);
+}
+
+/* Hilfe Overlay */
+#hilfeOverlay {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  text-align: center;
+}
+
+/* Hilfe GIF */
+#hilfeGif {
+  width: 80vw;
+  height: auto;
+  pointer-events: none;
+}
+
+
+
+
+#hilfeContainer {
+  position: fixed;
+  top: 50%;
+  left: 40%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  display: none;
+  pointer-events: none;
+}
+#home-button {
+  position: absolute;
+  top: 2vh;
+  right: 2vw;
+  z-index: 100;
+  padding: 0.5em 1em;
+  font-size: 1.2em;
+  cursor: pointer;
+  transition: filter 0.2s ease;
+  height: auto;
+}
+
+#home-button:hover {
+  filter: brightness(0.85);
+}
+
+
+  </style>
+</head>
+<body>
+     <h1>Thema: Religion</h1>
+    <img id="hilfeButton" src="bilder/frage.png" alt="Hilfe" style="
+  position: absolute;
+  top: 2.6vh;
+  left: 1.3vw;
+  z-index: 999;
+  width: 8.2vw;
+  height: auto;
+  cursor: pointer;
+">
+    <img id="home-button" src="bilder/home.png" alt="home" style="
+  position: absolute;
+  top: 2.6vh;
+  right: 1.3vw;
+  z-index: 999;
+  width: 8.2vw;
+  height: auto;
+  cursor: pointer;
+">
+<!-- Hilfe-Container -->
+<div id="hilfeContainer" style="position:fixed; top:50%; left:40%; transform:translate(-50%, -50%);
+     z-index:9999; display:none; pointer-events:none;">
+
+  <img id="hilfeGif" src="video/hilfe.gif">
+  <!-- Wird durch PNG ersetzt -->
+</div>
+
+
+  <!-- Tooltip in der Mitte -->
+  <div class="tooltip-global" id="tooltipGlobal"></div>
+
+  <div class="tueren-container">
+    <div class="tuer" data-id="1">
+      <img class="tuer-still" src="video/door_frame.jpg" alt="Tür-Still" />
+      <video class="tuer-video" src="video/tür.mp4" preload="auto" muted></video>
+      <img class="schloss" src="video/schloss3_still.png" data-gif="video/schloss3.gif" />
+      <div class="tuer-text" data-id="3">Flexible Pausenregelungen und Bereitstellung von Ruheräumen für Gebete oder Meditation führen zu mehr Zugehörigkeit, psychischem Wohlbefinden und einer wertschätzenden Unternehmenskultur.</div>
+
+    </div>
+    <div class="tuer" data-id="2">
+      <img class="tuer-still" src="video/door_frame.jpg" alt="Tür-Still" />
+      <video class="tuer-video" src="video/tür.mp4" preload="auto" muted></video>
+      <img class="schloss" src="video/schloss1_still.png" data-gif="video/schloss1.gif" />
+      <div class="tuer-text" data-id="1">Die Durchführung von Workshops, um Wissen und Verständnis für unterschiedliche Religionen und Weltanschauungen zu stärken, fördern religiöse Toleranz und helfen, Diskriminierung und Stereotype im Arbeitskontext abzubauen.</div>
+
+    </div>
+    <div class="tuer" data-id="3">
+      <img class="tuer-still" src="video/door_frame.jpg" alt="Tür-Still" />
+      <video class="tuer-video" src="video/tür.mp4" preload="auto" muted></video>
+      <img class="schloss" src="video/schloss2_still.png" data-gif="video/schloss2.gif" />
+      <div class="tuer-text" data-id="2">Förderung eines offenen Umgangs mit religiösen Symbolen und Feiertagen im Unternehmen stärkt die gegenseitige Akzeptanz und vermittelt Wertschätzung kultureller Identität.</div>
+
+    </div>
+  </div>
+
+  <div class="schluessel-container">
+    <div class="schluessel-wrapper" data-id="1" data-tooltip="Rücksichtnahme auf religiöse Bedürfnisse">
+      <img
+        src="bilder/schlüssel1.png"
+        class="schluessel"
+        draggable="true"
+        data-id="1"
+        alt="Schlüssel 1"
+      />
+    </div>
+    <div class="schluessel-wrapper" data-id="2" data-tooltip="Schulungen zu religiöser Vielfalt">
+      <img
+        src="bilder/schlüssel2.png"
+        class="schluessel"
+        draggable="true"
+        data-id="2"
+        alt="Schlüssel 2"
+      />
+    </div>
+    <div class="schluessel-wrapper" data-id="3" data-tooltip="Vielfalt sichtbar machen">
+      <img
+        src="bilder/schlüssel3.png"
+        class="schluessel"
+        draggable="true"
+        data-id="3"
+        alt="Schlüssel 3"
+      />
+    </div>
+  </div>
+
+  <script>
+     const hilfeBtn = document.getElementById("hilfeButton");
+const hilfeContainer = document.getElementById("hilfeContainer");
+const hilfeGif = document.getElementById("hilfeGif");
+
+let hilfeOffen = false; // Zustand: ist das Hilfe-Overlay sichtbar?
+let sperreAktiv = false; // Damit wir nach dem Schließen kurz blockieren
+
+hilfeBtn.addEventListener("click", () => {
+  if (hilfeOffen) {
+    // Schon offen → schließen wie beim normalen Click woanders
+    if (sperreAktiv) return; // falls mehrfach geklickt wird
+
+    sperreAktiv = true;
+    hilfeGif.src = "video/falten.gif?" + Date.now();
+
+    const existingText = hilfeContainer.querySelector("div");
+    if (existingText) existingText.style.display = "none";
+
+    setTimeout(() => {
+      hilfeContainer.style.display = "none";
+      hilfeGif.src = "";
+      if (existingText) existingText.remove();
+
+      hilfeOffen = false;
+      sperreAktiv = false;
+    }, 880);
+
+    return;
+  }
+
+  if (sperreAktiv) return; // blockiere sofortiges Neuöffnen
+
+  // Hilfe öffnen
+  hilfeOffen = true;
+  hilfeContainer.style.display = "block";
+  hilfeGif.src = "video/hilfe.gif?t=" + Date.now();
+
+  // Nach 0.92 Sekunden ersetzen durch PNG (das letzte Frame)
+  setTimeout(() => {
+    hilfeGif.src = "bilder/hilfe.png"; // ersetzt das gif
+    // Optional: Textfeld einblenden
+    const text = document.createElement("div");
+    text.textContent = "Hover über die Schlüssel, um zu erfahren für welchen Lösungsvorschlag diese stehen. Kombiniere dann Lösungsvorschlag, mit Problem-Schloss um die Tür zu öffnen und mehr Details aufzudecken.";
+ text.style.position = "absolute";
+text.style.top = "50%";
+text.style.left = "63%";
+text.style.transform = "translate(-50%, -50%)";
+//text.style.display = "inline-block"; // oder "block"
+
+text.style.width = "45vw";
+text.style.padding = "10px 20px";
+text.style.fontSize = "3vw";
+
+text.style.fontFamily = 'FFCommaTrial';
+text.style.color = "black";
+text.style.zIndex = "10000";
+
+
+
+
+    hilfeContainer.appendChild(text);
+  }, 880); // 11 Frames @ 12 fps ≈ 920ms
+});
+document.addEventListener("click", (e) => {
+  const isHilfeButton = e.target.id === "hilfeButton" || e.target.closest("#hilfeButton");
+  const isHilfeOverlay = e.target.closest("#hilfeContainer");
+
+  if (!isHilfeButton && !isHilfeOverlay && hilfeOffen && !sperreAktiv) {
+    sperreAktiv = true;
+    hilfeGif.src = "video/falten.gif?" + Date.now();
+    const existingText = hilfeContainer.querySelector("div");
+    if (existingText) existingText.style.display = "none";
+
+    setTimeout(() => {
+      hilfeContainer.style.display = "none";
+      hilfeGif.src = "";
+      if (existingText) existingText.remove();
+      hilfeOffen = false;
+      sperreAktiv = false;
+    }, 880);
+  }
+});
+
+    const geoeffneteTueren = new Set();
+let alleTuerenGeoeffnet = false;
+
+  // Zufällige Reihenfolge der Schlüssel
+window.addEventListener("DOMContentLoaded", () => {
+  const container = document.querySelector(".schluessel-container");
+  const wrappers = Array.from(document.querySelectorAll(".schluessel-wrapper"));
+
+  // 🔀 Wrapper zufällig mischen
+  const shuffled = wrappers.sort(() => 0.5 - Math.random());
+
+  // Alte Wrapper entfernen
+  wrappers.forEach(w => container.removeChild(w));
+
+  // In neuer Reihenfolge einfügen
+  shuffled.forEach(w => container.appendChild(w));
+
+  // Positionen leicht zufällig setzen
+  const containerWidth = container.offsetWidth;
+  const spacing = containerWidth / (shuffled.length + 1);
+  const usedPositions = [];
+
+  shuffled.forEach((wrapper, index) => {
+    const s = wrapper.querySelector(".schluessel");
+    let left;
+    do {
+      left = Math.floor(spacing * (index + 1) + (Math.random() - 0.5) * 40); // zufälliger Versatz
+    } while (usedPositions.includes(left));
+    usedPositions.push(left);
+
+    const top = Math.floor(20 + Math.random() * 30); // vertikaler Versatz
+
+    s.style.left = `${left}px`;
+    s.style.top = `${top}px`;
+  });
+});
+
+
+    // Drag-and-drop Logik
+    const schluessel = document.querySelectorAll(".schluessel");
+    const tueren = document.querySelectorAll(".tuer");
+
+    schluessel.forEach((s) => {
+      s.addEventListener("dragstart", (e) => {
+        e.dataTransfer.setData("text/plain", s.dataset.id);
+        e.dataTransfer.effectAllowed = "move";
+
+        const dragIcon = s.cloneNode(true);
+        dragIcon.style.position = "absolute";
+        dragIcon.style.top = "-1000px";
+        dragIcon.style.left = "-1000px";
+        dragIcon.style.width = getComputedStyle(s).width;
+        dragIcon.style.height = getComputedStyle(s).height;
+        document.body.appendChild(dragIcon);
+
+        e.dataTransfer.setDragImage(dragIcon, dragIcon.width / 2, dragIcon.height / 2);
+
+        setTimeout(() => {
+          s.style.opacity = "0";
+        }, 0);
+
+        s.addEventListener(
+          "dragend",
+          () => {
+            s.style.opacity = "1";
+            document.body.removeChild(dragIcon);
+          },
+          { once: true }
+        );
+      });
+    });
+
+    tueren.forEach((t) => {
+      t.addEventListener("dragover", (e) => e.preventDefault());
+
+      t.addEventListener("drop", (e) => {
+        e.preventDefault();
+        const keyId = e.dataTransfer.getData("text/plain");
+        const tuerId = t.dataset.id;
+
+        if (keyId === tuerId) {
+          const schloss = t.querySelector(".schloss");
+          const video = t.querySelector("video");
+          const still = t.querySelector(".tuer-still");
+
+          const gifSrc = schloss.dataset.gif;
+          const gif = new Image();
+          gif.src = gifSrc + "?" + Date.now();
+          gif.className = "schloss";
+          t.appendChild(gif);
+          schloss.remove();
+
+          setTimeout(() => {
+            gif.remove();
+            still.style.display = "none";
+            video.style.display = "block";
+            video.currentTime = 0;
+            video.play();
+          }, 450);
+          video.onended = () => {
+  const tuerText = t.querySelector(".tuer-text");
+  if (tuerText) {
+    tuerText.style.display = "block";
+  }
+
+  geoeffneteTueren.add(tuerId);
+
+  if (geoeffneteTueren.size === 3 && !alleTuerenGeoeffnet) {
+    alleTuerenGeoeffnet = true;
+    console.log("Alle Türen wurden geöffnet!");
+    // Weitere Logik hier
+  }
+};
+
+
+        }
+      });
+    });
+
+    // Tooltip zentral anzeigen
+    const globalTooltip = document.getElementById("tooltipGlobal");
+
+    document.querySelectorAll(".schluessel-wrapper").forEach((wrapper) => {
+      const tooltipText = wrapper.getAttribute("data-tooltip");
+
+      wrapper.addEventListener("mouseenter", () => {
+        globalTooltip.textContent = tooltipText;
+        globalTooltip.style.opacity = "1";
+      });
+
+      wrapper.addEventListener("mouseleave", () => {
+        globalTooltip.style.opacity = "0";
+      });
+    });
+    document.getElementById("home-button").addEventListener("click", () => {
+  if (alleTuerenGeoeffnet) {
+    window.location.href = "victory3.html";
+  } else {
+    window.location.href = "start.html";
+  }
+});
+
+  </script>
+</body>
+</html>

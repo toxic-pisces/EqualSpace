@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>Seifenblasen</title>
+  <style>
+        /* Schriftart einbinden */
+    @font-face {
+      font-family: 'FFCommaTrial';
+      src: url('font/true.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+  h1 {
+    margin: 1.25vh 0 1.875vh 0;
+    font-size: 6rem;
+    text-align: center;
+    user-select: none;
+    color: rgba(159, 98, 248, 1);
+    position: fixed;
+    top: 3.1vh;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    z-index: 0;
+  }
+
+  body {
+    margin: 0;
+    overflow: hidden;
+    font-family: 'FFCommaTrial', sans-serif;
+  }
+
+  #video-container {
+    position: fixed;
+    bottom: -0.3vh;
+    left: 0;
+    width: 39.5vw;
+    height: auto;
+    z-index: 1000;
+  }
+
+  video#myVideo {
+    width: 100%;
+    height: auto;
+    cursor: pointer;
+    display: block;
+  }
+
+  #blasen-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    overflow: visible;
+    z-index: 1001;
+  }
+
+  .seifenblase {
+    position: fixed;
+    bottom: 28vh;
+    width: 39.5vw;
+    user-select: none;
+    pointer-events: auto;
+    animation-name: schweben;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+    cursor: pointer;
+  }
+
+  @keyframes schweben {
+    0% {
+      transform: translateX(0) translateY(0);
+      opacity: 1;
+    }
+    100% {
+      transform: translateX(100vw) translateY(-3.125vh);
+      opacity: 0;
+    }
+  }
+
+  .pop-video {
+    position: fixed;
+    width: 39.5vw;
+    height: auto;
+    pointer-events: none;
+    user-select: none;
+    z-index: 1100;
+  }
+
+  #press {
+    position: fixed;
+    bottom: 3.1vh;
+    left: 28.3vw;
+    max-width: 15.9vw;
+    height: auto;
+    z-index: 1500;
+    pointer-events: auto;
+    user-select: none;
+  }
+
+  #press img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  #pop-text {
+    position: fixed;
+    bottom: 1.25vh;
+    right: 1.25vw;
+    color: #000;
+    padding: 0.75vh 1.25vw;
+    font-size: 2.5rem;
+    max-width: 43vw;
+    z-index: 2000;
+    display: none;
+  }
+
+/* Hilfe-Button */
+#hilfeButton {
+  position: absolute;
+  top: 2vh;
+  left: 2vw;
+  z-index: 100;
+  padding: 0.5em 1em;
+  font-size: 1.2em;
+  cursor: pointer;
+  transition: filter 0.2s ease;
+
+  height: auto;
+}
+
+#hilfeButton:hover {
+  filter: brightness(0.85);
+}
+
+/* Hilfe Overlay */
+#hilfeOverlay {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  text-align: center;
+}
+
+/* Hilfe GIF */
+#hilfeGif {
+  width: 80vw;
+  height: auto;
+  pointer-events: none;
+}
+
+
+
+
+#hilfeContainer {
+  position: fixed;
+  top: 50%;
+  left: 40%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  display: none;
+  pointer-events: none;
+}
+    #home-button {
+  position: absolute;
+  top: 2vh;
+  right: 2vw;
+  z-index: 100;
+  padding: 0.5em 1em;
+  font-size: 1.2em;
+  cursor: pointer;
+  transition: filter 0.2s ease;
+  height: auto;
+}
+
+#home-button:hover {
+  filter: brightness(0.85);
+}
+  </style>
+</head>
+<body>
+     <h1>Thema: Rassismus</h1>
+
+     <!-- Button -->
+<img id="hilfeButton" src="bilder/frage.png" alt="Hilfe" style="
+  position: absolute;
+  top: 2.6vh;
+  left: 1.3vw;
+  z-index: 999;
+  width: 8.2vw;
+  height: auto;
+  cursor: pointer;
+">
+<img id="home-button" src="bilder/home.png" alt="home" style="
+  position: absolute;
+  top: 2.6vh;
+  right: 1.3vw;
+  z-index: 999;
+  width: 8.2vw;
+  height: auto;
+  cursor: pointer;
+">
+<div id="counter" style="
+  position: fixed;
+  top: 20vh;
+  right: 2vw;
+  font-size: 2.5rem;
+  color: rgba(159, 98, 248, 1);
+  font-family: 'FFCommaTrial', sans-serif;
+  z-index: 3000;
+  user-select: none;
+">0 / 5 Gefunden</div>
+
+
+
+<!-- Hilfe-Container -->
+<div id="hilfeContainer" style="position:fixed; top:50%; left:40%; transform:translate(-50%, -50%);
+     z-index:9999; display:none; pointer-events:none;">
+
+  <img id="hilfeGif" src="video/hilfe.gif">
+  <!-- Wird durch PNG ersetzt -->
+</div>
+
+  <div id="video-container">
+    <video id="myVideo" preload="auto">
+      <source src="video/seifenblasen.mp4" type="video/mp4" />
+      Dein Browser unterstützt kein HTML5-Video.
+    </video>
+  </div>
+
+  <div id="blasen-container"></div>
+  <div id="press">
+
+    <img src="Bilder/infoseifen.png" alt="Press" />
+  </div>
+<div id="pop-text"></div>
+  <script>
+    const counterDiv = document.getElementById('counter');
+let zerplatzt = {
+  1: false,
+  2: false,
+  3: false,
+  4: false,
+  5: false
+};
+let counter = 0;
+let alleZerplatzt = false;
+
+    const hilfeBtn = document.getElementById("hilfeButton");
+const hilfeContainer = document.getElementById("hilfeContainer");
+const hilfeGif = document.getElementById("hilfeGif");
+
+let hilfeOffen = false; // Zustand: ist das Hilfe-Overlay sichtbar?
+let sperreAktiv = false; // Damit wir nach dem Schließen kurz blockieren
+
+hilfeBtn.addEventListener("click", () => {
+  if (hilfeOffen) {
+    // Schon offen → schließen wie beim normalen Click woanders
+    if (sperreAktiv) return; // falls mehrfach geklickt wird
+
+    sperreAktiv = true;
+    hilfeGif.src = "video/falten.gif?" + Date.now();
+
+    const existingText = hilfeContainer.querySelector("div");
+    if (existingText) existingText.style.display = "none";
+
+    setTimeout(() => {
+      hilfeContainer.style.display = "none";
+      hilfeGif.src = "";
+      if (existingText) existingText.remove();
+
+      hilfeOffen = false;
+      sperreAktiv = false;
+    }, 880);
+
+    return;
+  }
+
+  if (sperreAktiv) return; // blockiere sofortiges Neuöffnen
+
+  // Hilfe öffnen
+  hilfeOffen = true;
+  hilfeContainer.style.display = "block";
+  hilfeGif.src = "video/hilfe.gif?t=" + Date.now();
+
+  // Nach 0.92 Sekunden ersetzen durch PNG (das letzte Frame)
+  setTimeout(() => {
+    hilfeGif.src = "bilder/hilfe.png"; // ersetzt das gif
+    // Optional: Textfeld einblenden
+    const text = document.createElement("div");
+    text.textContent = "Halte mit der Maus das Pustestäbchen gedrückt, um Seifenblasen zu erzeugen und die Diskriminierungsformen aufzudecken. Um herauszufinden, wie diesen entgegengewirkt werden kann, muss die Seifenblase zerplatzen.";
+ text.style.position = "absolute";
+text.style.top = "50%";
+text.style.left = "63%";
+text.style.transform = "translate(-50%, -50%)";
+//text.style.display = "inline-block"; // oder "block"
+
+text.style.width = "45vw";
+text.style.padding = "10px 20px";
+text.style.fontSize = "3vw";
+
+text.style.fontFamily = 'FFCommaTrial';
+text.style.color = "black";
+text.style.zIndex = "10000";
+
+
+
+
+    hilfeContainer.appendChild(text);
+  }, 880); // 11 Frames @ 12 fps ≈ 920ms
+});
+document.addEventListener("click", (e) => {
+  const isHilfeButton = e.target.id === "hilfeButton" || e.target.closest("#hilfeButton");
+  const isHilfeOverlay = e.target.closest("#hilfeContainer");
+
+  if (!isHilfeButton && !isHilfeOverlay && hilfeOffen && !sperreAktiv) {
+    sperreAktiv = true;
+    hilfeGif.src = "video/falten.gif?" + Date.now();
+    const existingText = hilfeContainer.querySelector("div");
+    if (existingText) existingText.style.display = "none";
+
+    setTimeout(() => {
+      hilfeContainer.style.display = "none";
+      hilfeGif.src = "";
+      if (existingText) existingText.remove();
+      hilfeOffen = false;
+      sperreAktiv = false;
+    }, 880);
+  }
+});
+
+
+  const video = document.getElementById('myVideo');
+  const blasenContainer = document.getElementById('blasen-container');
+  const popTextBox = document.getElementById('pop-text');
+  let isMouseDown = false;
+
+  // Beispielhafte Texte für die Seifenblasen 1 bis 5
+  const seifenblasenTexte = {
+    1: "Anonyme Bewerbungsverfahren: Einführung von anonymisierten Bewerbungsprozessen führen nachweislich zu einer erhöhten Chancengleichheit bei der Auswahl und verringern rassistisch motivierte Auswahlentscheidungen.",
+    2: "Klare Konsequenzen bei rassistischen Vorfällen: Die Einführung eines verbindlichen Maßnahmenkatalogs bei rassistischem Verhalten schafft Transparenz und Verlässlichkeit. So wird deutlich, dass Diskriminierung nicht toleriert wird. Das stärkt das Vertrauen der Mitarbeitenden und fördert eine respektvolle, sichere Arbeitsumgebung.",
+    3: "Beschwerdestelle und klare Richtlinien: Einrichtung einer unabhängigen Anlaufstelle für Diskriminierungsfälle und Implementierung verbindlicher Antidiskriminierungsrichtlinien im Unternehmen schaffen Vertrauen in die Unternehmenskultur und sorgen dafür, dass Diskriminierung konsequent verfolgt und sichtbar geahndet wird.",
+    4: "Aktive Maßnahmen gegen Ausgrenzung: Durch gezielte Teambuilding-Formate, inklusive Kommunikationsregeln und Diversitätstrainings wird das Miteinander im Unternehmen gestärkt. So entsteht ein respektvolles Arbeitsklima, in dem Vielfalt als Stärke gesehen wird und niemand an den Rand gedrängt wird.",
+    5: "Interkulturelle Trainings: Durchführung regelmäßiger Workshops zu interkultureller Kompetenz und Antirassismus für alle Mitarbeitenden stärken die Sensibilität im Umgang mit Vielfalt und verringern diskriminierende Verhaltensweisen spürbar im Arbeitsalltag."
+  };
+
+  video.addEventListener('mousedown', () => {
+    isMouseDown = true;
+    video.currentTime = 0;
+    video.play();
+  });
+
+  video.addEventListener('mouseup', () => {
+    isMouseDown = false;
+    video.pause();
+    video.currentTime = 0;
+  });
+
+  video.addEventListener('mouseleave', () => {
+    if (isMouseDown) {
+      isMouseDown = false;
+      video.pause();
+      video.currentTime = 0;
+    }
+  });
+
+  video.addEventListener('ended', () => {
+    createSeifenblase();
+    if (isMouseDown) {
+      video.currentTime = 0;
+      video.play();
+    }
+  });
+
+  function createSeifenblase() {
+    
+    const blase = document.createElement('img');
+
+    // Zufallszahl 1–5 für Bildauswahl und zugehörigen Text
+    const index = Math.floor(Math.random() * 5) + 1;
+
+    blase.src = `Bilder/seifenblase${index}.png`;
+    blase.alt = `Seifenblase ${index}`;
+    blase.classList.add('seifenblase');
+    blase.dataset.text = seifenblasenTexte[index] || 'Kein Text vorhanden.';
+const randomBottomOffset = 2.5 + Math.random() * 2; // etwa 40–70px → in vh
+blase.style.bottom = `${randomBottomOffset}vh`;
+
+blase.style.left = `${1 + Math.random() * 1.5}vw`; // 30–50px → in vw
+
+    // Zufällige Position und Dauer
+    
+    const duration = 4000 + Math.random() * 3000;
+    blase.style.animationDuration = `${duration}ms`;
+
+    // Klick auf Blase
+    blase.addEventListener('click', (event) => {
+  event.stopPropagation();
+  const rect = blase.getBoundingClientRect();
+  const text = blase.dataset.text;
+  
+  // Prüfe, ob die Blase noch nicht gezählt wurde
+  const blaseIndex = parseInt(blase.alt.match(/\d+/)[0]); // z.B. aus "Seifenblase 3" → 3
+  
+  if (!zerplatzt[blaseIndex]) {
+    zerplatzt[blaseIndex] = true;
+    counter++;
+    counterDiv.textContent = `${counter} / 5 Gefunden`;
+    
+    if (counter === 5) {
+      alleZerplatzt = true;
+      console.log("Alle 5 Seifenblasen wurden zerplatzt!");
+      // Hier kannst du noch weitere Aktionen auslösen, wenn alle zerplatzt sind.
+    }
+  }
+
+  if (blasenContainer.contains(blase)) {
+    blasenContainer.removeChild(blase);
+  }
+
+  createPopVideo(rect.left, rect.top, text);
+});
+
+
+    // Entferne nach Animation
+    blase.addEventListener('animationend', () => {
+      if (blasenContainer.contains(blase)) {
+        blasenContainer.removeChild(blase);
+      }
+    });
+
+    blasenContainer.appendChild(blase);
+  }
+
+function createPopVideo(x, y, text) {
+  const popImage = document.createElement('img');
+  popImage.src = 'video/pop.gif?' + Date.now();
+
+  popImage.classList.add('pop-video');
+  popImage.style.left = `${x}px`;
+  popImage.style.top = `${y}px`;
+
+  blasenContainer.appendChild(popImage);
+
+  // Nach 1 Sekunde (1000 ms) entfernen – Dauer ggf. anpassen
+  setTimeout(() => {
+    if (blasenContainer.contains(popImage)) {
+      blasenContainer.removeChild(popImage);
+    }
+    showPopText(text); // Funktion, die deinen Text zeigt
+  }, 250); 
+}
+
+
+
+  function showPopText(text) {
+    popTextBox.textContent = text;
+    popTextBox.style.display = 'block';
+
+    // Nach 5 Sekunden ausblenden
+    setTimeout(() => {
+      popTextBox.style.display = 'none';
+    }, 1000000);
+  }
+   document.getElementById("home-button").addEventListener("click", () => {
+  if (alleZerplatzt) {
+    window.location.href = "victory6.html";
+  } else {
+    window.location.href = "start.html";
+  }
+});
+</script>
+</body>
+</html>

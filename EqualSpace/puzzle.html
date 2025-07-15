@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Puzzle</title>
+  <style>
+    @font-face {
+  font-family: 'coc';
+  src: url('font/true.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+    html, body {
+
+      overflow: hidden;
+      background-color: white;
+    }
+h1 {
+    margin: 1.25vh 0 1.875vh 0;
+    font-size: 6rem;
+    text-align: center;
+    user-select: none;
+    font-family: 'coc';
+    color: rgba(159, 98, 248, 1);
+    position: fixed;
+    top: 3.1vh;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    z-index: 0;
+  }
+    #game-container {
+      position: relative;
+      width: 200vw;
+      height: 200vh;
+    }
+
+    #board {
+      position: absolute;
+      top: 20vh;
+      left: 30vw;
+      width: 40vw;
+      height: 40vw;
+      z-index: 0;
+    }
+
+    .piece {
+      position: absolute;
+      width: 26w;
+      height: 26vw;
+      cursor: grab;
+      z-index: 2;
+      user-select: none;
+      pointer-events: all;
+    }
+    /* Hilfe-Button */
+#hilfeButton {
+  position: absolute;
+  top: 2vh;
+  left: 2vw;
+  z-index: 100;
+  padding: 0.5em 1em;
+  font-size: 1.2em;
+  cursor: pointer;
+  transition: filter 0.2s ease;
+  height: auto;
+}
+
+#hilfeButton:hover {
+  filter: brightness(0.85);
+}
+
+/* Hilfe Overlay */
+#hilfeOverlay {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  text-align: center;
+}
+
+/* Hilfe GIF */
+#hilfeGif {
+  width: 80vw;
+  height: auto;
+  pointer-events: none;
+}
+
+
+
+
+#hilfeContainer {
+  position: fixed;
+  top: 50%;
+  left: 40%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  display: none;
+  pointer-events: none;
+}
+#home-button {
+  position: absolute;
+  top: 2vh;
+  right: 2vw;
+  z-index: 100;
+  padding: 0.5em 1em;
+  font-size: 1.2em;
+  cursor: pointer;
+  transition: filter 0.2s ease;
+  height: auto;
+}
+
+#home-button:hover {
+  filter: brightness(0.85);
+}
+  </style>
+</head>
+<body>
+    <h1>Thema: Alter</h1>
+    <!-- Button -->
+<img id="hilfeButton" src="bilder/frage.png" alt="Hilfe" style="
+  position: absolute;
+  top: 2.6vh;
+  left: 1.3vw;
+  z-index: 999;
+  width: 8.2vw;
+  height: auto;
+  cursor: pointer;
+">
+ <img id="home-button" src="bilder/home.png" alt="home" style="
+  position: absolute;
+  top: 2.6vh;
+  right: 1.3vw;
+  z-index: 999;
+  width: 8.2vw;
+  height: auto;
+  cursor: pointer;
+">
+
+
+
+<!-- Hilfe-Container -->
+<div id="hilfeContainer" style="position:fixed; top:50%; left:40%; transform:translate(-50%, -50%);
+     z-index:9999; display:none; pointer-events:none;">
+
+  <img id="hilfeGif" src="video/hilfe.gif">
+  <!-- Wird durch PNG ersetzt -->
+</div>
+  <div id="game-container">
+    <img id="board" src="bilder/board.png" alt="Board" draggable="false">
+
+    <img id="lu" class="piece" src="bilder/lu.png" alt="Links Unten" draggable="false">
+    <img id="lo" class="piece" src="bilder/lo.png" alt="Links Oben" draggable="false">
+    <img id="ru" class="piece" src="bilder/ru.png" alt="Rechts Unten" draggable="false">
+    <img id="ro" class="piece" src="bilder/ro.png" alt="Rechts Oben" draggable="false">
+  </div>
+
+ <script>
+    const hilfeBtn = document.getElementById("hilfeButton");
+const hilfeContainer = document.getElementById("hilfeContainer");
+const hilfeGif = document.getElementById("hilfeGif");
+
+let hilfeOffen = false; // Zustand: ist das Hilfe-Overlay sichtbar?
+let sperreAktiv = false; // Damit wir nach dem Schließen kurz blockieren
+
+hilfeBtn.addEventListener("click", () => {
+  if (hilfeOffen) {
+    // Schon offen → schließen wie beim normalen Click woanders
+    if (sperreAktiv) return; // falls mehrfach geklickt wird
+
+    sperreAktiv = true;
+    hilfeGif.src = "video/falten.gif?" + Date.now();
+
+    const existingText = hilfeContainer.querySelector("div");
+    if (existingText) existingText.style.display = "none";
+
+    setTimeout(() => {
+      hilfeContainer.style.display = "none";
+      hilfeGif.src = "";
+      if (existingText) existingText.remove();
+
+      hilfeOffen = false;
+      sperreAktiv = false;
+    }, 880);
+
+    return;
+  }
+
+  if (sperreAktiv) return; // blockiere sofortiges Neuöffnen
+
+  // Hilfe öffnen
+  hilfeOffen = true;
+  hilfeContainer.style.display = "block";
+  hilfeGif.src = "video/hilfe.gif?t=" + Date.now();
+
+  // Nach 0.92 Sekunden ersetzen durch PNG (das letzte Frame)
+  setTimeout(() => {
+    hilfeGif.src = "bilder/hilfe.png"; // ersetzt das gif
+    // Optional: Textfeld einblenden
+    const text = document.createElement("div");
+    text.textContent = "Auf dem Brett sind verschiedene Diskriminierungsformen abgebildet. Lege das passende Puzzelteil mit der passenden Lösung auf die richtige Stelle um mehr Details zu erfahren.";
+ text.style.position = "absolute";
+text.style.top = "50%";
+text.style.left = "63%";
+text.style.transform = "translate(-50%, -50%)";
+//text.style.display = "inline-block"; // oder "block"
+
+text.style.width = "45vw";
+text.style.padding = "10px 20px";
+text.style.fontSize = "3vw";
+
+text.style.fontFamily = 'coc';
+text.style.color = "black";
+text.style.zIndex = "10000";
+
+
+
+
+    hilfeContainer.appendChild(text);
+  }, 880); // 11 Frames @ 12 fps ≈ 920ms
+});
+document.addEventListener("click", (e) => {
+  const isHilfeButton = e.target.id === "hilfeButton" || e.target.closest("#hilfeButton");
+  const isHilfeOverlay = e.target.closest("#hilfeContainer");
+
+  if (!isHilfeButton && !isHilfeOverlay && hilfeOffen && !sperreAktiv) {
+    sperreAktiv = true;
+    hilfeGif.src = "video/falten.gif?" + Date.now();
+    const existingText = hilfeContainer.querySelector("div");
+    if (existingText) existingText.style.display = "none";
+
+    setTimeout(() => {
+      hilfeContainer.style.display = "none";
+      hilfeGif.src = "";
+      if (existingText) existingText.remove();
+      hilfeOffen = false;
+      sperreAktiv = false;
+    }, 880);
+  }
+});
+
+
+  let allPlaced = false; // Flag, ob alle Teile richtig platziert sind
+
+  const pieces = {
+    lu: { targetX: 45.25 * window.innerWidth / 100, targetY: 65 * window.innerHeight / 100 },
+    lo: { targetX: 44 * window.innerWidth / 100, targetY: 38 * window.innerHeight / 100 },
+    ru: { targetX: 61 * window.innerWidth / 100, targetY: 64.5 * window.innerHeight / 100 },
+    ro: { targetX: 60 * window.innerWidth / 100, targetY: 38 * window.innerHeight / 100 }
+  };
+
+  // Texte für jedes Teil
+  const texts = {
+    lo: "Einführung altersunabhängiger Kriterien für Leistungsbewertung und Projektvergabe führt zu gerechteren Aufstiegschancen und reduziert altersbedingte Frustration im Team.",
+    lu: "Bewusste Kommunikation und Sensibilisierung gegen Vorurteile und negative Stereotype über ältere oder jüngere Mitarbeitende stärken das Verständnis füreinander und reduzieren diskriminierende Aussagen oder Verhaltensweisen im Arbeitsalltag.",
+    ro: "Förderung altersgemischter Teams, um von unterschiedlichen Erfahrungen und Perspektiven zu profitieren. Diese erzielen nachweislich bessere Problemlösungen, da sie unterschiedliche Perspektiven und Erfahrungswerte kombinieren.",
+    ru: "Flexible Arbeitszeiten und ergonomische Anpassungen ermöglichen älteren Mitarbeitenden einen gesünderen Verbleib im Erwerbsleben und senken krankheitsbedingte Ausfallzeiten."
+  };
+
+  // Globale Variablen fürs Draggen
+  let currentDrag = null; // aktuell gezogenes Element
+  let offsetX = 0;
+  let offsetY = 0;
+
+  // Initiale Position der Teile zufällig verteilen
+  for (const id in pieces) {
+    const el = document.getElementById(id);
+    el.style.position = "absolute";
+    el.style.left = (Math.random() * 80) + "vw";
+    el.style.top = (Math.random() * 80) + "vh";
+    el.style.cursor = "grab";
+  }
+
+  // Mousedown auf Puzzle-Teil startet Drag
+  for (const [id, pos] of Object.entries(pieces)) {
+    const el = document.getElementById(id);
+
+    el.addEventListener("mousedown", (e) => {
+      e.preventDefault();
+      currentDrag = el;
+      offsetX = e.clientX - el.getBoundingClientRect().left;
+      offsetY = e.clientY - el.getBoundingClientRect().top;
+      el.style.cursor = "grabbing";
+      el.style.zIndex = 10;
+    });
+  }
+
+  // Mousemove bewegt das aktuell gezogene Teil
+  document.addEventListener("mousemove", (e) => {
+    if (!currentDrag) return;
+    currentDrag.style.left = (e.clientX - offsetX) + "px";
+    currentDrag.style.top = (e.clientY - offsetY) + "px";
+  });
+
+  // Mouseup beendet Drag & prüft Snap
+  document.addEventListener("mouseup", (e) => {
+    if (!currentDrag) return;
+
+    const id = currentDrag.id;
+    const target = pieces[id];
+
+    const rect = currentDrag.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+
+    const dist = Math.hypot(target.targetX - centerX, target.targetY - centerY);
+
+    // Snap-Toleranz: 80px
+    if (dist < 80) {
+      const snapLeft = target.targetX - currentDrag.offsetWidth / 2;
+      const snapTop = target.targetY - currentDrag.offsetHeight / 2;
+
+      currentDrag.style.left = snapLeft + "px";
+      currentDrag.style.top = snapTop + "px";
+      currentDrag.style.cursor = "default";
+      currentDrag.style.zIndex = 0;
+      // Verhindere weiteres Ziehen
+      currentDrag.removeEventListener("mousedown", () => {});
+      
+      // Textfeld erzeugen, falls noch nicht da
+      if (!document.getElementById("text-" + id)) {
+        const textDiv = document.createElement("div");
+        textDiv.id = "text-" + id;
+        textDiv.textContent = texts[id] || "";
+        textDiv.style.position = "absolute";
+        textDiv.style.color = "black";
+        textDiv.style.padding = "0.5vw";
+        textDiv.style.fontSize = "1.9vw";
+        textDiv.style.fontFamily = "coc";
+        textDiv.style.zIndex = "5";
+        textDiv.style.pointerEvents = "none";
+        textDiv.style.maxWidth = "20vw";
+        
+
+        // Positionierung vom Text relativ zum Teil
+        const offsetTextX = 10; // Pixel Abstand horizontal
+        const offsetTextY = 110; // Pixel Abstand vertikal
+
+        if (id === "lo" || id === "lu") {
+          textDiv.style.left = (snapLeft - currentDrag.offsetWidth + offsetTextX) + "px";
+          textDiv.style.top = (snapTop + offsetTextY) + "px";
+        } else {
+          textDiv.style.left = (snapLeft + currentDrag.offsetWidth + offsetTextX) + "px";
+          textDiv.style.top = (snapTop + offsetTextY) + "px";
+        }
+
+        document.getElementById("game-container").appendChild(textDiv);
+      }
+    }
+
+    currentDrag.style.cursor = "grab";
+    currentDrag.style.zIndex = 2;
+    currentDrag = null;
+
+    // Prüfen, ob alle Teile platziert sind (Snap-Toleranz)
+    allPlaced = Object.entries(pieces).every(([checkId, checkPos]) => {
+      const pieceEl = document.getElementById(checkId);
+      const r = pieceEl.getBoundingClientRect();
+      const centerX = r.left + r.width / 2;
+      const centerY = r.top + r.height / 2;
+      const distance = Math.hypot(checkPos.targetX - centerX, checkPos.targetY - centerY);
+      return distance < 80;
+    });
+
+    if (allPlaced) {
+      console.log("Alle Teile sind richtig platziert!");
+    }
+  });
+
+  // Home-Button steuert Zielseite je nach allPlaced
+  document.getElementById("home-button").addEventListener("click", () => {
+    if (allPlaced) {
+      window.location.href = "victory4.html";
+    } else {
+      window.location.href = "start.html";
+    }
+  });
+</script>
+
+</body>
+</html>

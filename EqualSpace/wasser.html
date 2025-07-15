@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Wasser</title>
+  <style>
+       @font-face {
+  font-family: 'FFCommaTrial';
+  src: url('font/true.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+
+
+body {
+  margin: 0;
+  height: 100vh;
+  overflow: hidden;
+  background-color: white;
+  font-size: 1vw;
+}
+
+/* Draggable GIF (Glas) */
+#draggable {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 22vw;
+  cursor: grab;
+  user-select: none;
+}
+
+#draggable.dragging {
+  cursor: grabbing;
+}
+
+/* Evilglass PNG */
+#evilglass {
+  position: absolute;
+  bottom: -7vh;
+  left: 55%;
+  transform: translateX(-50%);
+  width: 45vw;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Hintergrund für Wellen */
+#wellen-bg {
+  position: absolute;
+  bottom: -35777vh;
+  left: 51.9%;
+  transform: translateX(-50%);
+  width: 16vw;
+  height: 74.5vh;
+  background-color: rgba(109, 227, 148, 1);
+  display: none;
+  z-index: 0;
+}
+
+/* Wellen-GIF */
+#wellen {
+  position: absolute;
+  bottom: -35777vh;
+  left: 50.75%;
+  transform: translateX(-50%);
+  width: 28vw;
+  pointer-events: none;
+  display: none;
+  z-index: 1;
+}
+
+/* Unsichtbarer Zähler */
+#counter {
+  visibility: hidden;
+}
+
+/* Hilfe-Button */
+#hilfeButton {
+  position: absolute;
+  top: 2vh;
+  left: 2vw;
+  z-index: 100;
+  padding: 0.5em 1em;
+  font-size: 1.2em;
+  cursor: pointer;
+  transition: filter 0.2s ease;
+
+  height: auto;
+}
+
+#hilfeButton:hover {
+  filter: brightness(0.85);
+}
+
+/* Hilfe Overlay */
+#hilfeOverlay {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  text-align: center;
+}
+
+/* Hilfe GIF */
+#hilfeGif {
+  width: 80vw;
+  height: auto;
+  pointer-events: none;
+}
+h1 {
+    font-family: 'FFCommaTrial';
+    margin: 1.25vh 0 1.875vh 0;
+    font-size: 6rem;
+    text-align: center;
+    user-select: none;
+    color: rgba(159, 98, 248, 1);
+    position: fixed;
+    top: 3.1vh;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    z-index: 0;
+  }
+
+
+
+
+#hilfeContainer {
+  position: fixed;
+  top: 50%;
+  left: 40%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  display: none;
+  pointer-events: none;
+}
+/* Textfeld unten rechts */
+#textfeld {
+  position: absolute;
+  bottom: 10vh;
+  right: 4vw;
+  width: 41vw;
+  font-family: 'FFCommaTrial', sans-serif;
+  background: white;
+  display: none;
+  font-size: 1.5vw;
+  z-index: 2;
+  word-wrap: break-word;
+  white-space: normal;
+  overflow-wrap: break-word;
+  overflow-y: auto;
+  padding: 1vw;
+  
+  
+}
+#home-button {
+  position: absolute;
+  top: 2vh;
+  right: 2vw;
+  z-index: 100;
+  padding: 0.5em 1em;
+  font-size: 1.2em;
+  cursor: pointer;
+  transition: filter 0.2s ease;
+  height: auto;
+}
+
+#home-button:hover {
+  filter: brightness(0.85);
+}
+
+  </style>
+</head>
+<body>
+    <h1>Thema: Geschlecht</h1>
+<!-- Button -->
+<img id="hilfeButton" src="bilder/frage.png" alt="Hilfe" style="
+  position: absolute;
+  top: 2.6vh;
+  left: 1.3vw;
+  z-index: 999;
+  width: 8.2vw;
+  height: auto;
+  cursor: pointer;
+">
+ <img id="home-button" src="bilder/home.png" alt="home" style="
+  position: absolute;
+  top: 2.6vh;
+  right: 1.3vw;
+  z-index: 999;
+  width: 8.2vw;
+  height: auto;
+  cursor: pointer;
+">
+
+
+<!-- Hilfe-Container -->
+<div id="hilfeContainer" style="position:fixed; top:50%; left:40%; transform:translate(-50%, -50%);
+     z-index:9999; display:none; pointer-events:none;">
+
+  <img id="hilfeGif" src="video/hilfe.gif">
+  <!-- Wird durch PNG ersetzt -->
+</div>
+
+
+
+
+  <img id="draggable" src="video/glas.gif" alt="Evil Glass">
+  <img id="evilglass" src="bilder/evilglass.png" alt="Evil Glass Static">
+  <div id="wellen-bg"></div>
+  <img id="wellen" src="video/wellen.gif" alt="Wellen">
+  <div id="counter">0</div>
+  <div id="textfeld" style="
+  position: absolute;
+  bottom: 8vh;
+  right: 4vw;
+  width: 28vw;
+  
+  font-family: 'FFCommaTrial';
+
+
+  display: none;
+  font-size: 2rem;
+  z-index: 2;
+
+  word-wrap: break-word;
+  white-space: normal;
+  overflow-wrap: break-word;
+  
+  overflow-y: auto; /* scrollbar bei Bedarf */
+  box-sizing: border-box;
+"></div>
+<div id="textfeld2" style="
+  position: absolute;
+  bottom: 25vh;
+  left: 6vw;
+  width: 28vw;
+  font-family: 'FFCommaTrial';
+  display: none;
+  font-size: 2rem;
+  z-index: 2;
+  word-wrap: break-word;
+  white-space: normal;
+  overflow-wrap: break-word;
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding: 1vw;
+  background: white;
+"></div>
+
+<div id="textfeld3" style="
+  position: absolute;
+  bottom: 40vh;
+  right: 4vw;
+  width: 28vw;
+  font-family: 'FFCommaTrial';
+  display: none;
+  font-size: 2rem;
+  z-index: 2;
+  word-wrap: break-word;
+  white-space: normal;
+  overflow-wrap: break-word;
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding: 1vw;
+  background: white;
+"></div>
+
+
+<script>
+    let WasserOben = false;
+const hilfeBtn = document.getElementById("hilfeButton");
+const hilfeContainer = document.getElementById("hilfeContainer");
+const hilfeGif = document.getElementById("hilfeGif");
+
+let hilfeOffen = false; // Zustand: ist das Hilfe-Overlay sichtbar?
+let sperreAktiv = false; // Damit wir nach dem Schließen kurz blockieren
+
+hilfeBtn.addEventListener("click", () => {
+  if (hilfeOffen) {
+    // Schon offen → schließen wie beim normalen Click woanders
+    if (sperreAktiv) return; // falls mehrfach geklickt wird
+
+    sperreAktiv = true;
+    hilfeGif.src = "video/falten.gif?" + Date.now();
+
+    const existingText = hilfeContainer.querySelector("div");
+    if (existingText) existingText.style.display = "none";
+
+    setTimeout(() => {
+      hilfeContainer.style.display = "none";
+      hilfeGif.src = "";
+      if (existingText) existingText.remove();
+
+      hilfeOffen = false;
+      sperreAktiv = false;
+    }, 880);
+
+    return;
+  }
+
+  if (sperreAktiv) return; // blockiere sofortiges Neuöffnen
+
+  // Hilfe öffnen
+  hilfeOffen = true;
+  hilfeContainer.style.display = "block";
+  hilfeGif.src = "video/hilfe.gif?t=" + Date.now();
+
+  // Nach 0.92 Sekunden ersetzen durch PNG (das letzte Frame)
+  setTimeout(() => {
+    hilfeGif.src = "bilder/hilfe.png"; // ersetzt das gif
+    // Optional: Textfeld einblenden
+    const text = document.createElement("div");
+    text.textContent = "Fülle den Behälter in der Mitte, mit der grünen Flüssigkeit, um die verschiedenen Diskriminierungen, verschwinden zu lassen. Für jede ertränkte Diskriminierung erscheint ein passender Ansatz, wie diesen entgegengewirkt werden kann.";
+ text.style.position = "absolute";
+text.style.top = "50%";
+text.style.left = "63%";
+text.style.transform = "translate(-50%, -50%)";
+//text.style.display = "inline-block"; // oder "block"
+
+text.style.width = "45vw";
+text.style.padding = "10px 20px";
+text.style.fontSize = "3vw";
+
+text.style.fontFamily = 'FFCommaTrial';
+text.style.color = "black";
+text.style.zIndex = "10000";
+
+
+
+
+    hilfeContainer.appendChild(text);
+  }, 880); // 11 Frames @ 12 fps ≈ 920ms
+});
+document.addEventListener("click", (e) => {
+  const isHilfeButton = e.target.id === "hilfeButton" || e.target.closest("#hilfeButton");
+  const isHilfeOverlay = e.target.closest("#hilfeContainer");
+
+  if (!isHilfeButton && !isHilfeOverlay && hilfeOffen && !sperreAktiv) {
+    sperreAktiv = true;
+    hilfeGif.src = "video/falten.gif?" + Date.now();
+    const existingText = hilfeContainer.querySelector("div");
+    if (existingText) existingText.style.display = "none";
+
+    setTimeout(() => {
+      hilfeContainer.style.display = "none";
+      hilfeGif.src = "";
+      if (existingText) existingText.remove();
+      hilfeOffen = false;
+      sperreAktiv = false;
+    }, 880);
+  }
+});
+
+
+
+  const img = document.getElementById('draggable');
+  const wellen = document.getElementById('wellen');
+  const wellenBg = document.getElementById('wellen-bg');
+  const counterDisplay = document.getElementById('counter');
+
+  let isDragging = false;
+  let offsetX, offsetY;
+  let currentState = 'evil';
+  let kippenTimeout = null;
+
+  let counter = 0;
+  let counterInterval = null;
+  let wellenPos = -19.44;
+  let wellenBgPos = -47.22;
+
+function startCounter() {
+  if (counterInterval) return;
+
+  wellen.style.display = 'block';
+  wellenBg.style.display = 'block';
+
+  counterInterval = setInterval(() => {
+    counter++;
+    counterDisplay.textContent = counter;
+
+    // Nur bewegen, solange unter 260
+    if (counter < 225) {
+      wellenPos += 0.139;
+      wellenBgPos += 0.139;
+      wellen.style.bottom = `${wellenPos}vw`;
+      wellenBg.style.bottom = `${wellenBgPos}vw`;
+    }
+
+    // Textfeld steuern
+    const textfeld = document.getElementById('textfeld');
+    const textfeld2 = document.getElementById('textfeld2');
+    const textfeld3 = document.getElementById('textfeld3');
+
+    if (counter === 70) {
+      textfeld.textContent = 'Flexible Arbeitsmodelle: Förderung von Teilzeit, Elternzeit und Homeoffice für alle Geschlechter, um die Vereinbarkeit von Beruf und Familie zu unterstützen, die Zufriedenheit aller Geschlechter zu erhöhen und den Gender Care Gap zu verringern.';
+      textfeld.style.display = 'block';
+    } else if (counter === 150) {
+      textfeld2.textContent = 'Gleichstellungsbeauftragte: Ernennung von Gleichstellungsbeauftragten, die sich für Chancengleichheit und gegen Diskriminierung einsetzen sorgen für klare Anlaufstellen, begleiten Beschwerden und fördern verbindliche Gleichstellungsziele.';
+      textfeld2.style.display = 'block';
+    } else if (counter === 220) {
+      textfeld3.textContent = 'Schulungen zu Gendergerechtigkeit: Sensibilisierungs-Trainings für Führungskräfte und Teams zu den Themen Geschlechtergerechtigkeit und Diversität fördern ein respektvolles Miteinander und senken die Toleranz gegenüber diskriminierenden Aussagen deutlich.';
+      textfeld3.style.display = 'block';
+      WasserOben = true;
+    } 
+
+  }, 100);
+}
+
+
+  function stopCounter() {
+    clearInterval(counterInterval);
+    counterInterval = null;
+  }
+
+  img.addEventListener('mousedown', (e) => {
+    e.preventDefault();
+    isDragging = true;
+    img.classList.add('dragging');
+    offsetX = e.clientX - img.offsetLeft;
+    offsetY = e.clientY - img.offsetTop;
+  });
+
+  img.addEventListener('dragstart', (e) => e.preventDefault());
+
+  document.addEventListener('mousemove', (e) => {
+    if (isDragging) {
+      const x = e.clientX - offsetX;
+      const y = e.clientY - offsetY;
+
+      img.style.left = x + 'px';
+      img.style.top = y + 'px';
+      img.style.bottom = 'auto';
+
+      const zoneTop = 0;
+      const zoneHeight = window.innerHeight * 0.4;
+      const zoneLeft = window.innerWidth * 0.4;
+      const zoneWidth = window.innerWidth * 0.2;
+
+      const imgCenterX = x + img.offsetWidth / 2;
+      const imgCenterY = y + img.offsetHeight / 2;
+
+      const inTopZone =
+        imgCenterY >= zoneTop &&
+        imgCenterY <= zoneTop + zoneHeight &&
+        imgCenterX >= zoneLeft &&
+        imgCenterX <= zoneLeft + zoneWidth;
+
+      if (inTopZone) {
+        if (currentState === 'evil') {
+          img.src = 'video/kippen.gif';
+          currentState = 'kippen';
+          kippenTimeout = setTimeout(() => {
+            img.src = 'video/kippen2.gif';
+            currentState = 'kippen2';
+          }, 420);
+        }
+        startCounter();
+      } else {
+        if (currentState !== 'evil') {
+          img.src = 'video/glas.gif';
+          currentState = 'evil';
+          clearTimeout(kippenTimeout);
+        }
+        stopCounter();
+      }
+    }
+  });
+
+  document.addEventListener('mouseup', () => {
+    isDragging = false;
+    img.classList.remove('dragging');
+  });
+   document.getElementById("home-button").addEventListener("click", () => {
+  if (WasserOben) {
+    window.location.href = "victory5.html";
+  } else {
+    window.location.href = "start.html";
+  }
+});
+</script>
+
+</body>
+</html>

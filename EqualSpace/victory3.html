@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>Geschafft</title>
+  <style>
+    /* Schriftart einbinden */
+    @font-face {
+      font-family: 'FFCommaTrial';
+      src: url('font/true.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+
+    h1 {
+      margin: 1.25vh 0 0.5vh 0;
+      font-size: 6rem;
+      text-align: center;
+      user-select: none;
+      color: rgba(159, 98, 248, 1);
+      position: fixed;
+      top: 3.1vh;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      z-index: 0;
+    }
+
+    p.description {
+      position: fixed;
+      top: 15vh;
+      width: 60%;
+      left: 20%;
+      text-align: center;
+      font-size: 2rem;
+      color: black;
+      z-index: 1;
+    }
+
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: 'FFCommaTrial';
+      background-color: #fff;
+    }
+
+    .qr-container {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      gap: 3vw;
+      z-index: 10;
+    }
+
+    .qr-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1vh;
+    }
+
+    .qr-link {
+      font-size: 0.9rem;
+      color: #000;
+      word-break: break-word;
+      text-align: center;
+      max-width: 160px;
+    }
+    #home-button {
+  position: absolute;
+  top: 2vh;
+  right: 2vw;
+  z-index: 100;
+  padding: 0.5em 1em;
+  font-size: 1.2em;
+  cursor: pointer;
+  transition: filter 0.2s ease;
+  height: auto;
+}
+
+#home-button:hover {
+  filter: brightness(0.85);
+}
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+  <h1>Geschafft!</h1>
+   <img id="home-button" src="bilder/home.png" alt="home" style="
+  position: absolute;
+  top: 2.6vh;
+  right: 1.3vw;
+  z-index: 999;
+  width: 8.2vw;
+  height: auto;
+  cursor: pointer;
+">
+<img src="video/wirvideotanzen.gif" alt="Wir-Video" style="
+        position: absolute;
+        bottom: -4.5vh;
+        right: 38vw;
+        width: 22vw;
+        height: auto;
+        z-index: 0;
+    ">
+  <p class="description">Sehr schön gemacht! Klicke oben rechts, um zur Startseite zurückzukehren und ein anderes Spiel auszuprobieren. Unten findet man zwei QR-Codes, die zu unseren Quellen führen. Dort findet man auch noch mehr Informationen.</p>
+
+  <div class="qr-container">
+    <div class="qr-box">
+      <div id="qrcode1"></div>
+      <div class="qr-link">https://www.antidiskriminierungsstelle.de/DE/ueber-diskriminierung/diskriminierungsmerkmale/religion-weltanschauung/religion-weltanschauung-node.html</div>
+    </div>
+    <div class="qr-box">
+      <div id="qrcode2"></div>
+      <div class="qr-link">https://www.antidiskriminierungsstelle.de/SharedDocs/downloads/DE/publikationen/Expertisen/expertise_umgang_mit_religioeser_vielfalt_am_arbeitsplatz_20160922.pdf?__blob=publicationFile&v=6</div>
+    </div>
+    <div class="qr-box">
+      <div id="qrcode3"></div>
+      <div class="qr-link">https://news.kununu.com/religion-am-arbeitsplatz/</div>
+    </div>
+  </div>
+  
+  
+
+  <script>
+    new QRCode(document.getElementById("qrcode1"), {
+      text: "https://www.antidiskriminierungsstelle.de/DE/ueber-diskriminierung/diskriminierungsmerkmale/religion-weltanschauung/religion-weltanschauung-node.html",
+      width: 128,
+      height: 128,
+      colorDark: "#000000",
+      colorLight: "#ffffff",
+      correctLevel: QRCode.CorrectLevel.H
+    });
+
+    new QRCode(document.getElementById("qrcode2"), {
+      text: "https://www.antidiskriminierungsstelle.de/SharedDocs/downloads/DE/publikationen/Expertisen/expertise_umgang_mit_religioeser_vielfalt_am_arbeitsplatz_20160922.pdf?__blob=publicationFile&v=6",
+      width: 128,
+      height: 128,
+      colorDark: "#000000",
+      colorLight: "#ffffff",
+      correctLevel: QRCode.CorrectLevel.H
+    });
+    new QRCode(document.getElementById("qrcode3"), {
+      text: "https://news.kununu.com/religion-am-arbeitsplatz/",
+      width: 128,
+      height: 128,
+      colorDark: "#000000",
+      colorLight: "#ffffff",
+      correctLevel: QRCode.CorrectLevel.H
+    });
+    document.getElementById("home-button").addEventListener("click", () => {
+    
+      window.location.href = "start.html";
+    
+  });
+  setTimeout(() => {
+      window.location.href = "start.html";
+    }, 60000);
+  </script>
+</body>
+</html>
